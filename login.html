@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TotalEnergies | Login</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0A0F24;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #1A1F3C;
+      padding: 35px;
+      border-radius: 12px;
+      border: 2px solid #ffd000;
+      width: 95%;#FFD700
+      max-width: 400px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo h1 {
+      color: #FFD700;
+      font-size: 28px;
+      margin: 0;
+    }
+
+    .logo span {
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #FFD700;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #FFD700;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      background-color: #eee;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      background-color: #FFD700;
+      color: #0A0F24;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .link {
+      margin-top: 18px;
+      text-align: center;
+      display: block;
+      color: #FFD700;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <h1>TotalEnergies</h1>
+      <span>Investimento inteligente</span>
+    </div>
+    <h2>Entrar na Conta</h2>
+    <form>
+      <div class="form-group">
+        <label for="telefone">Número de Telefone</label>
+        <input type="tel" id="telefone" placeholder="Ex: 923000000" required>
+      </div>
+      <div class="form-group">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" placeholder="Sua senha" required>
+      </div>
+      <button type="submit" class="btn">Entrar</button>
+      <a class="link" href="registro.html">Não tem conta? Registre-se</a>
+    </form>
+  </div>
+</body>
+</html>

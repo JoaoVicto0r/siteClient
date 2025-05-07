@@ -128,7 +128,7 @@
           alert('Login realizado com sucesso!');
           // redirecionar, salvar token, etc
           localStorage.setItem('token', data.token);
-          window.location.href = '/dashboard.html';
+          window.location.href = '/carteira.html';
         } else {
           alert(data.message || 'Falha no login');
         }

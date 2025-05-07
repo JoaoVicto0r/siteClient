@@ -127,6 +127,7 @@ form.addEventListener('submit', async (e) => {
 
   if (response.ok) {
     alert('Login realizado com sucesso!');
+    window.location.href = 'planos.html';
     
   } else {
     alert(result.message || 'Erro no login');

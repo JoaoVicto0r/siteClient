@@ -87,6 +87,46 @@
     .profile-actions a:hover {
       background-color: var(--button-hover);
     }
+    .user-menu {
+  position: absolute;
+  top: 25px;
+  right: 30px;
+  z-index: 999;
+}
+
+.user-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #fff;
+  background-color: #eee;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background-color: #0b1d3c;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 10px 20px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+
+.dropdown-menu a:hover {
+  background-color: #1e90ff;
+}
+
   </style>
 </head>
 <body>

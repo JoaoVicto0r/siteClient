@@ -75,6 +75,11 @@
       align-items: center;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .opcao:hover {
+      background: #eaeaea;
     }
 
     .opcao i {
@@ -106,56 +111,55 @@
       display: block;
       margin-bottom: 3px;
       color: var(--amarelo);
-
     }
 
     .user-menu {
-  position: absolute;
-  top: 25px;
-  right: 30px;
-  z-index: 999;
-}
+      position: absolute;
+      top: 25px;
+      right: 30px;
+      z-index: 999;
+    }
 
-.user-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid #fff;
-  background-color: #eee;
-}
+    .user-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #fff;
+      background-color: #eee;
+    }
 
-.dropdown-menu {
-  display: none;
-  position: absolute;
-  top: 50px;
-  right: 0;
-  background-color: #0b1d3c;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-  overflow: hidden;
-}
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background-color: #0b1d3c;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+    }
 
-.dropdown-menu a {
-  display: block;
-  padding: 10px 20px;
-  color: #fff;
-  text-decoration: none;
-  font-size: 0.95rem;
-  transition: background 0.2s;
-}
+    .dropdown-menu a {
+      display: block;
+      padding: 10px 20px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: background 0.2s;
+    }
 
-.dropdown-menu a:hover {
-  background-color: #1e90ff;
-}
+    .dropdown-menu a:hover {
+      background-color: #1e90ff;
+    }
 
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+
   <div class="user-menu">
-    <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Usuário" class="user-icon" id="userIcon">
-  
+    <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Ícone do Usuário" class="user-icon" id="userIcon">
     <div class="dropdown-menu" id="dropdownMenu">
       <a href="perfil.html">Meu Perfil</a>
       <a href="carteira.html">Minha Carteira</a>
@@ -194,7 +198,7 @@
       <i class="fa fa-arrow-down"></i> Depósito
     </div>
     <div class="opcao" onclick="fazerSaque()">
-      <i class="fa fa-money-check-alt"></i> Fazer saque
+      <i class="fa fa-money-check"></i> Fazer saque
     </div>
     <div class="opcao" onclick="window.location.href='recarga.html'">
       <i class="fa fa-clock-rotate-left"></i> Registro de recarga
@@ -229,7 +233,7 @@
         
         if (iban && valor) {
           alert(`Saque solicitado com sucesso!\nIBAN: ${iban}\nValor: ${valor} Kz`);
-          // Aqui vai a requisição para o servidor
+          // Aqui pode ir uma requisição para o backend
         } else {
           alert("Preencha todos os campos.");
         }

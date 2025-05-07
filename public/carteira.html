@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Carteira - TotalEnergies</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --azul-escuro: #001F3F;
+      --amarelo: #FFD700;
+      --branco: #ffffff;
+      --cinza: #f0f0f0;
+    }
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: var(--cinza);
+      color: #000;
+    }
+
+    header {
+      background-color: var(--azul-escuro);
+      color: var(--branco);
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .header-left i {
+      font-size: 20px;
+      margin-right: 10px;
+    }
+
+    .carteira-box {
+      background-color: var(--branco);
+      margin: 15px;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .saldo {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--azul-escuro);
+      margin-bottom: 10px;
+    }
+
+    .sub-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-top: 5px;
+      color: #333;
+    }
+
+    .opcoes {
+      margin: 15px;
+    }
+
+    .opcao {
+      background: var(--branco);
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
+
+    .opcao i {
+      font-size: 20px;
+      margin-right: 10px;
+      color: var(--azul-escuro);
+    }
+
+    .menu-bottom {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--azul-escuro);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      color: var(--branco);
+    }
+
+    .menu-bottom div {
+      text-align: center;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .menu-bottom i {
+      font-size: 20px;
+      display: block;
+      margin-bottom: 3px;
+      color: var(--amarelo);
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <i class="fa fa-user"></i> Conta
+    </div>
+    <div>
+      <i class="fa fa-bell"></i>
+    </div>
+  </header>
+
+  <div class="carteira-box">
+    <strong>Minha carteira</strong>
+    <div class="saldo">Saldo: 00 Kz</div>
+    <div class="sub-info">
+      <div><strong>00</strong><br>Nenhuma renda hoje</div>
+      <div><strong>00</strong><br>Saque hoje</div>
+    </div>
+    <div class="sub-info" style="margin-top: 15px;">
+      <div><strong>00</strong><br>Total de saques</div>
+      <div><strong>500 Kz</strong><br>Bônus</div>
+    </div>
+  </div>
+
+  <div class="opcoes">
+    <div class="opcao" onclick="window.location.href='cartao.html'">
+      <i class="fa fa-credit-card"></i> Cartão bancário
+    </div>
+    <div class="opcao" onclick="window.location.href='deposito.html'">
+      <i class="fa fa-arrow-down"></i> Depósito
+    </div>
+    <div class="opcao" onclick="fazerSaque()">
+      <i class="fa fa-money-check-alt"></i> Fazer saque
+    </div>
+    <div class="opcao" onclick="window.location.href='recarga.html'">
+      <i class="fa fa-clock-rotate-left"></i> Registro de recarga
+    </div>
+    <div class="opcao" onclick="window.location.href='saque.html'">
+      <i class="fa fa-money-bill-wave"></i> Registro de saque
+    </div>
+  </div>
+
+  <div class="menu-bottom">
+    <div onclick="window.location.href='vips.html'">
+      <i class="fa fa-home"></i> Início
+    </div>
+    <div onclick="window.location.href='equipa.html'">
+      <i class="fa fa-users"></i> Equipa
+    </div>
+    <div onclick="window.location.href='carteira.html'">
+      <i class="fa fa-wallet"></i> Carteira
+    </div>
+  </div>
+
+  <script>
+    function fazerSaque() {
+      const temIBAN = confirm("Você já adicionou um cartão bancário?");
+      
+      if (!temIBAN) {
+        alert("Por favor, adicione um cartão bancário primeiro.");
+        window.location.href = "cartao.html";
+      } else {
+        const iban = prompt("Escolha o IBAN (ex: 0055...)");
+        const valor = prompt("Digite o valor do saque:");
+        
+        if (iban && valor) {
+          alert(Saque solicitado com sucesso!\nIBAN: ${iban}\nValor: ${valor} Kz);
+          // Aqui vai a requisição para o servidor
+        } else {
+          alert("Preencha todos os campos.");
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>

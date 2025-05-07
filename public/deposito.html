@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recarga</title>
+  <style>
+    :root {
+      --azul-principal: #004aad;
+      --azul-claro: #e6f0ff;
+      --branco: #ffffff;
+      --cinza-texto: #333333;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--branco);
+      color: var(--cinza-texto);
+    }
+
+    header {
+      background-color: var(--azul-principal);
+      padding: 15px;
+      text-align: center;
+      color: var(--branco);
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .card {
+      background-color: var(--azul-claro);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+
+    .iban-box {
+      background-color: var(--branco);
+      border: 2px solid var(--azul-principal);
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background-color: var(--azul-principal);
+      color: var(--branco);
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .btn:hover {
+      background-color: #00357f;
+    }
+
+    .grupo-telegram {
+      text-align: center;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    .grupo-telegram a {
+      color: var(--azul-principal);
+      text-decoration: underline;
+    }
+
+    .texto-instrucoes {
+      font-size: 15px;
+      text-align: center;
+      margin-top: 15px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <header>Recarga</header>
+
+  <div class="container">
+    <div class="card">
+      <h3 style="text-align:center;">Dados para depósito</h3>
+      <div class="iban-box">
+        Banco Atlântico<br>
+        IBAN: 0055.0000.0630.0963.1019.8<br>
+        Beneficiário: Faustino Muxibe
+      </div>
+
+      <button class="btn" onclick="window.location.href='https://t.me/AbrahamAaliyah'">
+        Enviar Comprovativo via Telegram
+      </button>
+
+      <div class="grupo-telegram">
+        Participar no grupo: <a href="https://t.me/+B77-HB5HIT8zMjM0" target="_blank">Clique aqui</a>
+      </div>
+
+      <div class="texto-instrucoes">
+        Após a transferência, envie o comprovativo para ativar seu plano.
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Solicitar Saque</title>
+  <style>
+    :root {
+      --azul: #003366;
+      --azul-claro: #0055aa;
+      --cinza-claro: #f5f5f5;
+      --branco: #ffffff;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--cinza-claro);
+      color: var(--azul);
+    }
+
+    header {
+      background-color: var(--azul);
+      padding: 18px;
+      text-align: center;
+      color: var(--branco);
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .container {
+      padding: 25px 20px;
+    }
+
+    .card {
+      background-color: var(--branco);
+      padding: 25px;
+      border-radius: 14px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: var(--azul);
+    }
+
+    select, input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 15px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background-color: var(--azul);
+      color: var(--branco);
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: var(--azul-claro);
+    }
+
+    .info-text {
+      margin-top: 20px;
+      font-size: 15px;
+      color: #333;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .mensagem {
+      text-align: center;
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+
+  <header>Solicitar Saque</header>
+
+  <div class="container">
+    <div class="card" id="form-saque" style="display: none;">
+      <label for="iban">Escolher IBAN</label>
+      <select id="iban">
+        <option value="005500000630096310198">Atlântico - 0055...198</option>
+        <option value="000100000123456789012">BAI - 0001...012</option>
+      </select>
+
+      <label for="valor">Valor a Sacar</label>
+      <input type="number" id="valor" placeholder="Mínimo 1200 Kz" />
+
+      <button class="btn" onclick="alert('Pedido de saque enviado com sucesso!')">Solicitar Saque</button>
+
+      <div class="info-text">
+        O valor mínimo para retirada é de <strong>1200 Kz</strong>.<br/>
+        Saques disponíveis de <strong>segunda a sexta-feira</strong><br/>
+        Das <strong>9h às 18h</strong>.
+      </div>
+    </div>
+
+    <div class="card" id="sem-iban" style="display: none;">
+      <div class="mensagem">
+        Você ainda não adicionou um cartão bancário.
+      </div>
+      <button class="btn" onclick="window.location.href='adicionar-banco.html'">Adicionar Conta Bancária</button>
+    </div>
+  </div>
+
+  <script>
+    // Simula se o usuário já adicionou IBAN (mude para false para testar sem cartão)
+    const temCartao = true;
+
+    if (temCartao) {
+      document.getElementById('form-saque').style.display = 'block';
+    } else {
+      document.getElementById('sem-iban').style.display = 'block';
+    }
+  </script>
+
+</body>
+</html>

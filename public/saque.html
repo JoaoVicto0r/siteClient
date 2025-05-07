@@ -86,56 +86,61 @@
       margin-bottom: 20px;
       color: #444;
     }
+
     .user-menu {
-  position: absolute;
-  top: 25px;
-  right: 30px;
-  z-index: 999;
-}
+      position: absolute;
+      top: 25px;
+      right: 30px;
+      z-index: 999;
+    }
 
-.user-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid #fff;
-  background-color: #eee;
-}
+    .user-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #fff;
+      background-color: #eee;
+    }
 
-.dropdown-menu {
-  display: none;
-  position: absolute;
-  top: 50px;
-  right: 0;
-  background-color: #0b1d3c;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-  overflow: hidden;
-}
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background-color: #0b1d3c;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+    }
 
-.dropdown-menu a {
-  display: block;
-  padding: 10px 20px;
-  color: #fff;
-  text-decoration: none;
-  font-size: 0.95rem;
-  transition: background 0.2s;
-}
+    .dropdown-menu a {
+      display: block;
+      padding: 10px 20px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: background 0.2s;
+    }
 
-.dropdown-menu a:hover {
-  background-color: #1e90ff;
-}
-
+    .dropdown-menu a:hover {
+      background-color: #1e90ff;
+    }
   </style>
 </head>
 <body>
   <div class="user-menu">
-    <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Usuário" class="user-icon" id="userIcon">
-  
+    <img
+      src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+      alt="Usuário"
+      class="user-icon"
+      id="userIcon"
+      onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png';"
+    >
     <div class="dropdown-menu" id="dropdownMenu">
       <a href="perfil.html">Meu Perfil</a>
       <a href="carteira.html">Minha Carteira</a>
-      <a href="historico.html">Histórico</a>
+      <a href="historico saque.html">Histórico</a>
       <a href="index.html">Sair</a>
     </div>
   </div>
@@ -179,7 +184,20 @@
     } else {
       document.getElementById('sem-iban').style.display = 'block';
     }
-  </script>
 
+    // Menu suspenso (opcional)
+    const userIcon = document.getElementById("userIcon");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+
+    userIcon.addEventListener("click", () => {
+      dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
+    });
+
+    window.addEventListener("click", (e) => {
+      if (!userIcon.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.style.display = "none";
+      }
+    });
+  </script>
 </body>
 </html>

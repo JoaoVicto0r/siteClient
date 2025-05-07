@@ -1,16 +1,15 @@
-import { Module } from '@nestjs/common';
+// app.module.ts
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { UserModule } from './user/user.module';
-import { PrismaService } from './prisma/prisma.service';
+import { AuthModule } from './auth/auth.module';
+import { Module } from '@nestjs/common';
 
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
+      rootPath: join(__dirname, '..', 'public'), // ou 'dist/public', onde estiver o login.html
     }),
-    UserModule,
+    AuthModule,
   ],
-  providers: [PrismaService],
 })
-export class AppModule {}  // <-- adicione esta linha
+export class AppModule {}

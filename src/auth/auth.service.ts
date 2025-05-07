@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service'; // ou caminho equivalente
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from 'src/user/dto/login.dto';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
@@ -21,22 +21,20 @@ export class AuthService {
     return { mensagem: 'Login realizado com sucesso', usuarioId: usuario.id };
   }
 
-  async cadastrar(data: CreateUserDto) {
+  async register(dto: CreateUserDto) {
     const usuarioExistente = await this.prisma.usuario.findUnique({
-      where: { celular: data.celular },
+      where: { celular: dto.celular },
     });
 
-    if (usuarioExistente) throw new Error('Celular já cadastrado');
+    if (usuarioExistente) {
+      throw new BadRequestException('Celular já cadastrado');
+    }
 
-    const senhaHash = await bcrypt.hash(data.senha, 10);
-
+    const hash = await bcrypt.hash(dto.senha, 10);
     const novoUsuario = await this.prisma.usuario.create({
-      data: {
-        celular: data.celular,
-        senha: senhaHash,
-      },
+      data: { celular: dto.celular, senha: hash },
     });
 
-    return { id: novoUsuario.id, celular: novoUsuario.celular };
+    return { mensagem: 'Usuário criado com sucesso', usuarioId: novoUsuario.id };
   }
 }

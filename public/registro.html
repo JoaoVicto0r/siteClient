@@ -88,6 +88,42 @@
     }
   </style>
 </head>
+<script>
+  const form = document.querySelector('form');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const celular = document.getElementById('telefone').value;
+    const senha = document.getElementById('senha').value;
+    const confirma = document.getElementById('confirma').value;
+
+    if (senha !== confirma) {
+      alert('As senhas não coincidem!');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:3000/auth/registro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ celular, senha }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert('Usuário registrado com sucesso!');
+        window.location.href = 'index.html'; // redireciona após sucesso
+      } else {
+        alert(result.message || 'Erro ao registrar usuário.');
+      }
+    } catch (err) {
+      alert('Erro na conexão com o servidor.');
+      console.error(err);
+    }
+  });
+</script>
 <body>
   <div class="container">
     <div class="logo">

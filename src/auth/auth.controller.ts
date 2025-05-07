@@ -13,8 +13,11 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
-  @Post('cadastrar')
-  cadastrar(@Body() dto: CreateUserDto) {
-    return this.authService.cadastrar(dto);
+
+ @Post('register')
+  register(@Body() createUserDto: CreateUserDto) {
+    return this.authService.register(createUserDto);
   }
 }
+
+

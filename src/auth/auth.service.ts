@@ -1,18 +1,42 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import * as jwt from 'jsonwebtoken';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service'; // ou caminho equivalente
+import * as bcrypt from 'bcrypt';
+import { LoginDto } from 'src/user/dto/login.dto';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
-  private readonly users = [
-    { telefone: '923000000', senha: '123456', id: 1 }
-  ];
+  constructor(private readonly prisma: PrismaService) {}
 
-  async validateUser(telefone: string, senha: string) {
-    const user = this.users.find(u => u.telefone === telefone && u.senha === senha);
-    if (!user) throw new UnauthorizedException('Telefone ou senha inválidos');
+  async login(data: LoginDto) {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { celular: data.celular },
+    });
 
-    const token = jwt.sign({ sub: user.id }, 'segredo123', { expiresIn: '1h' });
+    if (!usuario) throw new Error('Usuário não encontrado');
 
-    return { token };
+    const senhaCorreta = await bcrypt.compare(data.senha, usuario.senha);
+    if (!senhaCorreta) throw new Error('Senha incorreta');
+
+    return { mensagem: 'Login realizado com sucesso', usuarioId: usuario.id };
+  }
+
+  async cadastrar(data: CreateUserDto) {
+    const usuarioExistente = await this.prisma.usuario.findUnique({
+      where: { celular: data.celular },
+    });
+
+    if (usuarioExistente) throw new Error('Celular já cadastrado');
+
+    const senhaHash = await bcrypt.hash(data.senha, 10);
+
+    const novoUsuario = await this.prisma.usuario.create({
+      data: {
+        celular: data.celular,
+        senha: senhaHash,
+      },
+    });
+
+    return { id: novoUsuario.id, celular: novoUsuario.celular };
   }
 }

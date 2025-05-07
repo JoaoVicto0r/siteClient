@@ -39,6 +39,51 @@
       margin-right: 10px;
     }
 
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      position: relative;
+    }
+
+    .user-menu {
+      position: relative;
+    }
+
+    .user-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #fff;
+      background-color: #eee;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background-color: #0b1d3c;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+      z-index: 1000;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 10px 20px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: background 0.2s;
+    }
+
+    .dropdown-menu a:hover {
+      background-color: #1e90ff;
+    }
+
     .carteira-box {
       background-color: var(--branco);
       margin: 15px;
@@ -112,68 +157,26 @@
       margin-bottom: 3px;
       color: var(--amarelo);
     }
-
-    .user-menu {
-      position: absolute;
-      top: 25px;
-      right: 30px;
-      z-index: 999;
-    }
-
-    .user-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid #fff;
-      background-color: #eee;
-    }
-
-    .dropdown-menu {
-      display: none;
-      position: absolute;
-      top: 50px;
-      right: 0;
-      background-color: #0b1d3c;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-      overflow: hidden;
-    }
-
-    .dropdown-menu a {
-      display: block;
-      padding: 10px 20px;
-      color: #fff;
-      text-decoration: none;
-      font-size: 0.95rem;
-      transition: background 0.2s;
-    }
-
-    .dropdown-menu a:hover {
-      background-color: #1e90ff;
-    }
-
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-  <div class="user-menu">
-    <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Ícone do Usuário" class="user-icon" id="userIcon">
-    <div class="dropdown-menu" id="dropdownMenu">
-      <a href="perfil.html">Meu Perfil</a>
-      <a href="carteira.html">Minha Carteira</a>
-      <a href="historico.html">Histórico</a>
-      <a href="index.html">Sair</a>
-    </div>
-  </div>
-
   <header>
     <div class="header-left">
       <i class="fa fa-user"></i> Conta
     </div>
-    <div>
+    <div class="header-right">
       <i class="fa fa-bell"></i>
+      <div class="user-menu">
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Ícone do Usuário" class="user-icon" id="userIcon">
+        <div class="dropdown-menu" id="dropdownMenu">
+          <a href="perfil.html">Meu Perfil</a>
+          <a href="carteira.html">Minha Carteira</a>
+          <a href="historico.html">Histórico</a>
+          <a href="index.html">Sair</a>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -221,6 +224,19 @@
   </div>
 
   <script>
+    const userIcon = document.getElementById("userIcon");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+
+    userIcon.addEventListener("click", () => {
+      dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!userIcon.contains(event.target) && !dropdownMenu.contains(event.target)) {
+        dropdownMenu.style.display = "none";
+      }
+    });
+
     function fazerSaque() {
       const temIBAN = confirm("Você já adicionou um cartão bancário?");
       

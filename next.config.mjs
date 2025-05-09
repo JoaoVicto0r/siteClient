@@ -4,10 +4,9 @@ const nextConfig = {
   output: 'standalone',
   
   // Configurações adicionais
-  experimental: {
-    // Habilitar o middleware para autenticação
-    serverActions: true,
-  },
+ experimental: {
+  serverActions: {},
+},
 
   // Aumentar o tempo limite para operações de banco de dados
   serverRuntimeConfig: {

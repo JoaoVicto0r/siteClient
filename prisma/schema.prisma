@@ -5,24 +5,20 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  // Remova estas linhas que estão causando o erro:
-  // connectionLimit = 5
-  // idleTimeout     = 30
-  // connectTimeout  = 10
 }
 
 model User {
-  id                String             @id @default(cuid())
-  name              String
-  phone             String             @unique
-  password          String
-  role              Role               @default(USER)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  wallet            Wallet?
-  investments       Investment[]
+  id                 String              @id @default(cuid())
+  name               String
+  phone              String              @unique
+  password           String
+  role               Role                @default(USER)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  investments        Investment[]
+  sessions           Session[]
+  wallet             Wallet?
   withdrawalRequests WithdrawalRequest[]
-  sessions          Session[]
 }
 
 model Wallet {
@@ -36,29 +32,29 @@ model Wallet {
 }
 
 model Investment {
-  id          String   @id @default(cuid())
+  id          String           @id @default(cuid())
   userId      String
   packageId   String
   amount      Float
   dailyReturn Float
   duration    Int
   status      InvestmentStatus @default(ACTIVE)
-  startDate   DateTime @default(now())
+  startDate   DateTime         @default(now())
   endDate     DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model WithdrawalRequest {
-  id        String   @id @default(cuid())
+  id        String           @id @default(cuid())
   userId    String
   amount    Float
   iban      String
   status    WithdrawalStatus @default(PENDING)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Session {

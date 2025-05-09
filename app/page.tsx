@@ -5,6 +5,8 @@ import { Logo } from "@/components/logo"
 
 // Forçar renderização dinâmica
 export const dynamic = "force-dynamic"
+// Desabilitar prerendering estático
+export const revalidate = 0
 
 export default async function Home() {
   const session = await getSession()

@@ -3,6 +3,9 @@ import { getSession } from "@/lib/auth"
 import RegisterForm from "@/components/register-form"
 import { Logo } from "@/components/logo"
 
+// Forçar renderização dinâmica
+export const dynamic = "force-dynamic"
+
 export default async function RegisterPage() {
   const session = await getSession()
 

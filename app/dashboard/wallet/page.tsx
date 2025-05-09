@@ -4,6 +4,9 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { WalletInfo } from "@/components/wallet-info"
 import { DashboardFooter } from "@/components/dashboard-footer"
 
+// Forçar renderização dinâmica
+export const dynamic = "force-dynamic"
+
 export default async function WalletPage() {
   const session = await getSession()
 

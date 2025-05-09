@@ -4,6 +4,9 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { DepositInfo } from "@/components/deposit-info"
 import { DashboardFooter } from "@/components/dashboard-footer"
 
+// Forçar renderização dinâmica
+export const dynamic = "force-dynamic"
+
 export default async function DepositPage() {
   const session = await getSession()
 

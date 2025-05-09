@@ -4,6 +4,9 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { WithdrawalHistory } from "@/components/withdrawal-history"
 import { DashboardFooter } from "@/components/dashboard-footer"
 
+// Forçar renderização dinâmica
+export const dynamic = "force-dynamic"
+
 export default async function WithdrawalHistoryPage() {
   const session = await getSession()
 

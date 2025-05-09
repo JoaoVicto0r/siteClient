@@ -3,6 +3,9 @@ import { db } from "@/lib/db"
 import { getSession } from "@/lib/auth"
 import { AdminUserDetails } from "@/components/admin-user-details"
 
+// Forçar renderização dinâmica
+export const dynamic = "force-dynamic"
+
 export default async function AdminUserDetailsPage({ params }: { params: { id: string } }) {
   const session = await getSession()
 
@@ -31,7 +34,7 @@ export default async function AdminUserDetailsPage({ params }: { params: { id: s
           phone: user.phone,
           balance: user.wallet?.balance || 0,
           withdrawalBalance: user.wallet?.withdrawalBalance || 0,
-          createdAt: user.createdAt,
+          createdAt: user.createdAt.toISOString(), // Convertendo Date para string
         }}
       />
     </div>

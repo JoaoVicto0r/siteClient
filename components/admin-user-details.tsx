@@ -69,7 +69,16 @@ export function AdminUserDetails({ user }: { user: User }) {
     const fetchInvestments = async () => {
       try {
         const data = await getUserInvestments(user.id)
-        setInvestments(data)
+
+        // Converter os objetos Date para strings
+        const formattedInvestments = data.map((investment) => ({
+          ...investment,
+          startDate: investment.startDate.toISOString(),
+          endDate: investment.endDate.toISOString(),
+          // Não precisamos incluir createdAt e updatedAt pois não estamos usando na interface
+        }))
+
+        setInvestments(formattedInvestments)
       } catch (error) {
         console.error("Erro ao buscar investimentos:", error)
       } finally {

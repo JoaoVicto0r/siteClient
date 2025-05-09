@@ -1,12 +1,13 @@
-import { AdminDashboard } from "@/components/admin-dashboard"
-import { AdminWithdrawalRequests } from "@/components/admin-withdrawal-requests"
+import { AdminUsersList } from "@/components/admin-users-list"
 
-export default function AdminPage() {
+// Forçar renderização dinâmica
+export const dynamic = "force-dynamic"
+
+export default function AdminUsersPage() {
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold">Painel de Administração</h1>
-      <AdminDashboard />
-      <AdminWithdrawalRequests />
+      <h1 className="text-2xl font-bold">Gerenciamento de Usuários</h1>
+      <AdminUsersList />
     </div>
   )
 }

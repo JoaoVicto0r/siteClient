@@ -7,11 +7,37 @@ const globalForPrisma = global as unknown as { prisma: PrismaClient }
 function createPrismaClient() {
   try {
     const client = new PrismaClient({
-      log: ["error"],
+      log: [
+        {
+          emit: "event",
+          level: "query",
+        },
+        {
+          emit: "stdout",
+          level: "error",
+        },
+        {
+          emit: "stdout",
+          level: "info",
+        },
+        {
+          emit: "stdout",
+          level: "warn",
+        },
+      ],
     })
 
-    // Teste de conexão
-    client.$connect()
+    // Adiciona um listener para queries (isso é suportado pelo Prisma)
+    client.$on("query", (e: any) => {
+      console.log("Query: " + e.query)
+      console.log("Params: " + e.params)
+      console.log("Duration: " + e.duration + "ms")
+    })
+
+    // Teste de conexão inicial
+    client.$connect().catch((error) => {
+      console.error("Erro ao conectar ao banco de dados:", error)
+    })
 
     return client
   } catch (error) {
@@ -20,12 +46,35 @@ function createPrismaClient() {
   }
 }
 
-// Inicializa o cliente Prisma
+// Inicializa o cliente Prisma com verificação de disponibilidade
 export const db = globalForPrisma.prisma || createPrismaClient()
 
 // Mantém a mesma instância do Prisma Client em desenvolvimento
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = db
+}
+
+// Função para verificar se o cliente Prisma está disponível
+export async function isPrismaClientAvailable() {
+  try {
+    await db.$queryRaw`SELECT 1`
+    return true
+  } catch (error) {
+    console.error("Prisma Client não está disponível:", error)
+    return false
+  }
+}
+
+// Função para tentar reconectar
+export async function reconnectPrisma() {
+  try {
+    await db.$disconnect()
+    await db.$connect()
+    return true
+  } catch (error) {
+    console.error("Falha ao reconectar Prisma Client:", error)
+    return false
+  }
 }
 
 // Adiciona um manipulador de erros não tratados

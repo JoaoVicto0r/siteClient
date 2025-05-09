@@ -32,67 +32,139 @@ export async function registerUser({ name, phone, password }: { name: string; ph
       return { success: false, error: "Erro de conexão com o banco de dados" }
     }
 
-    // Check if user already exists
-    const existingUser = await db.user.findUnique({
-      where: { phone },
-    })
-
-    if (existingUser) {
-      return { success: false, error: "Este número de telefone já está registrado." }
+    // Tenta reconectar se necessário
+    try {
+      const isAvailable = await isPrismaClientAvailable()
+      if (!isAvailable) {
+        console.log("Tentando reconectar ao banco de dados...")
+        const reconnected = await reconnectPrisma()
+        if (!reconnected) {
+          return {
+            success: false,
+            error: "Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.",
+          }
+        }
+      }
+    } catch (connectionError) {
+      console.error("Erro ao verificar conexão:", connectionError)
+      return {
+        success: false,
+        error: "Erro ao verificar conexão com o banco de dados. Por favor, tente novamente mais tarde.",
+      }
     }
 
-    const hashedPassword = await hashPassword(password)
+    try {
+      // Check if user already exists
+      const existingUser = await db.user.findUnique({
+        where: { phone },
+      })
 
-    // Create user
-    await db.user.create({
-      data: {
-        name,
-        phone,
-        password: hashedPassword,
-        wallet: {
-          create: {
-            balance: 0,
-            withdrawalBalance: 0,
+      if (existingUser) {
+        return { success: false, error: "Este número de telefone já está registrado." }
+      }
+
+      const hashedPassword = await hashPassword(password)
+
+      // Create user
+      await db.user.create({
+        data: {
+          name,
+          phone,
+          password: hashedPassword,
+          wallet: {
+            create: {
+              balance: 0,
+              withdrawalBalance: 0,
+            },
           },
         },
-      },
-    })
+      })
 
-    return { success: true }
+      return { success: true }
+    } catch (dbError) {
+      console.error("Erro ao registrar usuário:", dbError)
+      return {
+        success: false,
+        error: "Erro ao acessar o banco de dados. Por favor, tente novamente.",
+      }
+    }
   } catch (error) {
     return handleDatabaseError(error, "registerUser")
   }
 }
 
+// Mock functions for Prisma availability and reconnection
+// Replace these with your actual implementation if needed
+async function isPrismaClientAvailable(): Promise<boolean> {
+  // Implement your logic to check Prisma client availability here
+  // For example, you might try to ping the database
+  return true // Placeholder: Assume it's always available for now
+}
+
+async function reconnectPrisma(): Promise<boolean> {
+  // Implement your logic to reconnect to Prisma here
+  // This might involve creating a new Prisma client instance
+  return true // Placeholder: Assume reconnection is always successful for now
+}
+
 export async function loginUser({ phone, password }: { phone: string; password: string }) {
   try {
-    // Verifica se o cliente Prisma está definido
+    // Verifica se o cliente Prisma está disponível
     if (!db) {
       console.error("Cliente Prisma não está definido")
       return { success: false, error: "Erro de conexão com o banco de dados" }
     }
 
-    const user = await db.user.findUnique({
-      where: { phone },
-    })
-
-    if (!user) {
-      return { success: false, error: "Usuário não encontrado." }
+    // Tenta reconectar se necessário
+    try {
+      const isAvailable = await isPrismaClientAvailable()
+      if (!isAvailable) {
+        console.log("Tentando reconectar ao banco de dados...")
+        const reconnected = await reconnectPrisma()
+        if (!reconnected) {
+          return {
+            success: false,
+            error: "Não foi possível conectar ao banco de dados. Por favor, tente novamente mais tarde.",
+          }
+        }
+      }
+    } catch (connectionError) {
+      console.error("Erro ao verificar conexão:", connectionError)
+      return {
+        success: false,
+        error: "Erro ao verificar conexão com o banco de dados. Por favor, tente novamente mais tarde.",
+      }
     }
 
-    const passwordValid = await verifyPassword(password, user.password)
+    try {
+      const user = await db.user.findUnique({
+        where: { phone },
+      })
 
-    if (!passwordValid) {
-      return { success: false, error: "Senha incorreta." }
-    }
+      if (!user) {
+        return { success: false, error: "Usuário não encontrado." }
+      }
 
-    // Create session
-    await createSession(user)
+      const passwordValid = await verifyPassword(password, user.password)
 
-    // Return user role for client-side redirection
-    return {
-      success: true,
-      role: user.role,
+      if (!passwordValid) {
+        return { success: false, error: "Senha incorreta." }
+      }
+
+      // Create session
+      await createSession(user)
+
+      // Return user role for client-side redirection
+      return {
+        success: true,
+        role: user.role,
+      }
+    } catch (dbError) {
+      console.error("Erro ao buscar usuário:", dbError)
+      return {
+        success: false,
+        error: "Erro ao acessar o banco de dados. Por favor, tente novamente.",
+      }
     }
   } catch (error) {
     return handleDatabaseError(error, "loginUser")

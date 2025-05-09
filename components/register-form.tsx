@@ -57,17 +57,17 @@ export default function RegisterForm() {
       })
 
       if (result.success) {
-        toast({
-          title: "Conta criada com sucesso!",
-          description: "Você já pode fazer login.",
-        })
-        router.push("/")
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Erro ao criar conta",
-          description: result.error,
-        })
+  toast({
+    title: "Conta criada com sucesso!",
+    description: "Você já pode fazer login.",
+  })
+  router.push("/")
+} else {
+  toast({
+    variant: "destructive",
+    title: "Erro ao criar conta",
+    description: "Erro: " + (result.error ?? "Desconhecido"),
+  })
       }
     } catch (error) {
       toast({

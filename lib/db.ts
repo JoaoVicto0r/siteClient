@@ -1,75 +1,37 @@
 import { PrismaClient } from "@prisma/client"
 
-// Definição mais precisa do tipo global
-const globalForPrisma = global as unknown as {
-  prisma: PrismaClient | undefined
+// Abordagem mais robusta para o singleton do Prisma
+declare global {
+  var prisma: PrismaClient | undefined
 }
 
-/**
- * Cria e configura uma instância do PrismaClient com as configurações de conexão
- */
-function createPrismaClient(): PrismaClient {
+// Função para criar o cliente com tratamento de erros
+function createPrismaClient() {
+  console.log("Criando nova instância do PrismaClient...")
+
   try {
-    console.log("Inicializando novo cliente Prisma...")
+    // Criação básica do cliente - sem configurações complexas para minimizar erros
+    const client = new PrismaClient()
 
-    // As configurações de conexão são definidas aqui, não no schema.prisma
-    const client = new PrismaClient({
-      log: [
-        { emit: "event", level: "query" },
-        { emit: "stdout", level: "error" },
-        { emit: "stdout", level: "warn" },
-        { emit: "stdout", level: "info" },
-      ],
-      // Configurações de conexão para PostgreSQL
-      // Estas são as configurações que você tentou definir no schema.prisma
-      datasources: {
-        db: {
-          url: process.env.DATABASE_URL,
-        },
-      },
-      // Configurações avançadas de conexão
-      // Nota: O Prisma Client não expõe diretamente todas as opções de conexão
-      // que você tentou configurar no schema.prisma
-    })
-
-    // Configurar listeners de eventos para monitoramento
-    client.$on("query", (e) => {
-      console.log("Query:", e.query)
-      console.log("Params:", e.params)
-      console.log("Duration:", e.duration + "ms")
-    })
-
-    // Teste de conexão imediato para verificar se o banco está acessível
+    // Teste de conexão imediato
     client
       .$connect()
-      .then(() => console.log("Conexão com o banco de dados estabelecida com sucesso"))
-      .catch((error) => {
-        console.error("ERRO CRÍTICO: Falha ao conectar ao banco de dados:", error)
-      })
+      .then(() => console.log("✅ Conexão com o banco de dados estabelecida"))
+      .catch((e) => console.error("❌ Erro na conexão com o banco:", e))
 
-    console.log("Cliente Prisma inicializado com sucesso")
     return client
-  } catch (error) {
-    console.error("ERRO CRÍTICO: Falha ao criar cliente Prisma:", error)
-    // Em caso de erro na criação do cliente, criamos um cliente básico
-    return new PrismaClient()
+  } catch (e) {
+    console.error("❌ Erro ao criar PrismaClient:", e)
+    throw new Error("Falha ao inicializar o cliente Prisma")
   }
 }
 
-// Inicialização do cliente Prisma como singleton
-let prismaInstance: PrismaClient
+// Inicialização com verificação explícita
+export const db = global.prisma || createPrismaClient()
 
-if (!globalForPrisma.prisma) {
-  globalForPrisma.prisma = createPrismaClient()
-  prismaInstance = globalForPrisma.prisma
-  console.log("Cliente Prisma global criado")
-} else {
-  prismaInstance = globalForPrisma.prisma
-  console.log("Usando cliente Prisma global existente")
+// Salva a referência no objeto global em desenvolvimento
+if (process.env.NODE_ENV !== "production") {
+  global.prisma = db
 }
 
-// Exportamos a instância do cliente
-export const db = prismaInstance
-
-// Exportação padrão para compatibilidade
 export default db

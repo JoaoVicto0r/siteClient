@@ -3,6 +3,15 @@ import { db } from "@/lib/db"
 import type { User } from "@prisma/client"
 import { compare, hash } from "bcryptjs"
 
+// Função auxiliar para verificar se o cliente Prisma está disponível
+function ensurePrismaClient() {
+  if (!db) {
+    console.error("❌ ERRO CRÍTICO: Cliente Prisma não está disponível")
+    throw new Error("Erro de conexão com o banco de dados")
+  }
+  return db
+}
+
 export async function getSession() {
   try {
     const sessionId = (await cookies()).get("session")?.value
@@ -11,13 +20,10 @@ export async function getSession() {
       return null
     }
 
-    // Verifica se o cliente Prisma está definido
-    if (!db) {
-      console.error("Cliente Prisma não está definido em getSession")
-      return null
-    }
+    // Usa a função auxiliar para garantir que o cliente está disponível
+    const prisma = ensurePrismaClient()
 
-    const session = await db.session.findUnique({
+    const session = await prisma.session.findUnique({
       where: { id: sessionId },
       include: { user: true },
     })
@@ -33,26 +39,22 @@ export async function getSession() {
       role: session.user.role,
     }
   } catch (error) {
-    console.error("Error getting session:", error)
+    console.error("❌ Erro ao obter sessão:", error)
     return null
   }
 }
 
 export async function createSession(user: User) {
   try {
-    // Verifica se o cliente Prisma está definido
-    if (!db) {
-      console.error("Cliente Prisma não está definido em createSession")
-      throw new Error("Erro de conexão com o banco de dados")
-    }
+    // Usa a função auxiliar para garantir que o cliente está disponível
+    const prisma = ensurePrismaClient()
 
-    const session = await db.session.create({
+    const session = await prisma.session.create({
       data: {
         userId: user.id,
-        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 dias
       },
     })
-
     ;(await cookies()).set("session", session.id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -63,7 +65,7 @@ export async function createSession(user: User) {
 
     return session
   } catch (error) {
-    console.error("Error creating session:", error)
+    console.error("❌ Erro ao criar sessão:", error)
     throw error
   }
 }
@@ -72,19 +74,21 @@ export async function clearSession() {
   try {
     const sessionId = (await cookies()).get("session")?.value
 
-    if (sessionId && db) {
-      await db.session
+    if (sessionId) {
+      // Usa a função auxiliar para garantir que o cliente está disponível
+      const prisma = ensurePrismaClient()
+
+      await prisma.session
         .delete({
           where: { id: sessionId },
         })
         .catch((error) => {
-          console.error("Error deleting session:", error)
+          console.error("❌ Erro ao excluir sessão:", error)
         })
     }
-
-    (await cookies()).delete("session")
+    ;(await cookies()).delete("session")
   } catch (error) {
-    console.error("Error clearing session:", error)
+    console.error("❌ Erro ao limpar sessão:", error)
   }
 }
 

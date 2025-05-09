@@ -5,9 +5,33 @@ import { redirect } from "next/navigation"
 import { db } from "@/lib/db"
 import { clearSession, createSession, getSession, hashPassword, verifyPassword } from "@/lib/auth"
 
+// Função auxiliar para tratamento de erros
+function handleDatabaseError(error: unknown, context: string) {
+  console.error(`Erro em ${context}:`, error)
+
+  // Verifica se é um erro de conexão com o banco de dados
+  if (error instanceof Error && error.message.includes("PrismaClient")) {
+    return {
+      success: false,
+      error: "Erro de conexão com o banco de dados. Por favor, tente novamente mais tarde.",
+    }
+  }
+
+  return {
+    success: false,
+    error: "Ocorreu um erro inesperado. Por favor, tente novamente.",
+  }
+}
+
 // Auth actions
 export async function registerUser({ name, phone, password }: { name: string; phone: string; password: string }) {
   try {
+    // Verifica se o cliente Prisma está definido
+    if (!db) {
+      console.error("Cliente Prisma não está definido")
+      return { success: false, error: "Erro de conexão com o banco de dados" }
+    }
+
     // Check if user already exists
     const existingUser = await db.user.findUnique({
       where: { phone },
@@ -36,13 +60,18 @@ export async function registerUser({ name, phone, password }: { name: string; ph
 
     return { success: true }
   } catch (error) {
-    console.error("Error registering user:", error)
-    return { success: false, error: "Ocorreu um erro ao registrar o usuário." }
+    return handleDatabaseError(error, "registerUser")
   }
 }
 
 export async function loginUser({ phone, password }: { phone: string; password: string }) {
   try {
+    // Verifica se o cliente Prisma está definido
+    if (!db) {
+      console.error("Cliente Prisma não está definido")
+      return { success: false, error: "Erro de conexão com o banco de dados" }
+    }
+
     const user = await db.user.findUnique({
       where: { phone },
     })
@@ -66,8 +95,7 @@ export async function loginUser({ phone, password }: { phone: string; password: 
       role: user.role,
     }
   } catch (error) {
-    console.error("Error logging in:", error)
-    return { success: false, error: "Ocorreu um erro ao fazer login." }
+    return handleDatabaseError(error, "loginUser")
   }
 }
 

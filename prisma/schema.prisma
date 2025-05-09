@@ -5,13 +5,10 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  // Adicione estas configurações para melhorar a estabilidade da conexão
-  // Número máximo de conexões no pool
-  connectionLimit = 5
-  // Tempo máximo de inatividade antes de fechar a conexão (em segundos)
-  idleTimeout     = 30
-  // Tempo máximo para estabelecer uma conexão (em segundos)
-  connectTimeout  = 10
+  // Remova estas linhas que estão causando o erro:
+  // connectionLimit = 5
+  // idleTimeout     = 30
+  // connectTimeout  = 10
 }
 
 model User {

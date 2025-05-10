@@ -1,12 +1,12 @@
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient } from "@prisma/client";
 
-// Evita múltiplas instâncias do Prisma Client em dev
+// Define um tipo global para armazenar o client em desenvolvimento
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
-}
+  prisma?: PrismaClient;
+};
 
-// Cria a instância do Prisma Client com log e tratamento
-function createPrismaClient() {
+// Cria nova instância do Prisma Client
+function createPrismaClient(): PrismaClient {
   const client = new PrismaClient({
     log: [
       { emit: "stdout", level: "error" },
@@ -14,54 +14,51 @@ function createPrismaClient() {
       { emit: "stdout", level: "info" },
       { emit: "event", level: "query" },
     ],
-  })
+  });
 
-  // Log de queries (útil para debug)
-  client.$on("query", (e) => {
-    console.log("Query:", e.query)
-    console.log("Params:", e.params)
-    console.log("Duration:", e.duration + "ms")
-  })
+  // Apenas em desenvolvimento: log detalhado de queries
+  if (process.env.NODE_ENV === "development") {
+    client.$on("query", (e) => {
+      console.log("📦 Prisma Query:", e.query);
+      console.log("📎 Params:", e.params);
+      console.log("⏱️ Duration:", `${e.duration}ms`);
+    });
+  }
 
-  // Conexão inicial
-  client.$connect().catch((error) => {
-    console.error("Erro ao conectar ao banco de dados:", error)
-  })
-
-  return client
+  return client;
 }
 
-// Inicializa a instância única
-export const db = globalForPrisma.prisma ?? createPrismaClient()
+// Usa instância única em dev para evitar problemas de hot reload
+export const db = globalForPrisma.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = db
+  globalForPrisma.prisma = db;
 }
 
-// Verifica se o Prisma está funcionando
+// Verifica se o Prisma está funcionando corretamente
 export async function isPrismaClientAvailable(): Promise<boolean> {
   try {
-    await db.$queryRaw`SELECT 1`
-    return true
+    await db.$queryRawUnsafe("SELECT 1"); // queryRawUnsafe para evitar erros de tag template
+    return true;
   } catch (error) {
-    console.error("Prisma Client não está disponível:", error)
-    return false
+    console.error("❌ Prisma Client indisponível:", error);
+    return false;
   }
 }
 
-// Tenta reconectar ao banco
+// Função para tentar reconectar manualmente
 export async function reconnectPrisma(): Promise<boolean> {
   try {
-    await db.$disconnect()
-    await db.$connect()
-    return true
+    await db.$disconnect();
+    await db.$connect();
+    return true;
   } catch (error) {
-    console.error("Falha ao reconectar Prisma Client:", error)
-    return false
+    console.error("❌ Falha ao reconectar Prisma Client:", error);
+    return false;
   }
 }
 
-// Trata erros não tratados
-process.on("unhandledRejection", (error) => {
-  console.error("Erro não tratado no Prisma Client:", error)
-})
+// Trata rejeições não capturadas globalmente
+process.on("unhandledRejection", (reason) => {
+  console.error("⚠️ Rejeição não tratada:", reason);
+});

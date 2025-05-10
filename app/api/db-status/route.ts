@@ -3,7 +3,14 @@ import { db } from '@/lib/db'
 
 export async function GET() {
   try {
-    // Apenas tenta query se a URL estiver presente
+    // Não tenta conectar durante o build
+    if (process.env.NEXT_PHASE === 'phase-production-build') {
+      return NextResponse.json(
+        { ok: false, message: 'Rota desativada durante o build' },
+        { status: 503 }
+      )
+    }
+
     if (!process.env.DATABASE_URL) {
       throw new Error('DATABASE_URL não definida.')
     }

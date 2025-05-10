@@ -1,12 +1,14 @@
 generator client {
   provider = "prisma-client-js"
+   log = ["query", "info", "warn", "error"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+ 
 }
-log = ["query", "info", "warn", "error"]
+
 
 model User {
   id                 String              @id @default(cuid())

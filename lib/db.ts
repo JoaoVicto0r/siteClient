@@ -1,32 +1,73 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from "@prisma/client"
 
-declare global {
-  // Garante tipagem global apenas em tempo de desenvolvimento
-  var prisma: PrismaClient | undefined
-}
+// Evita múltiplas instâncias do Prisma Client em desenvolvimento
+const globalForPrisma = global as unknown as { prisma: PrismaClient }
 
-// Função para criar uma nova instância do Prisma Client
+// Função para criar uma nova instância do PrismaClient com tratamento de erro
 function createPrismaClient() {
-  console.log('🛠 Criando nova instância do PrismaClient...')
+  try {
+    const client = new PrismaClient({
+      log: [
+        {
+          emit: "event",
+          level: "query",
+        },
+        {
+          emit: "stdout",
+          level: "error",
+        },
+        {
+          emit: "stdout",
+          level: "info",
+        },
+        {
+          emit: "stdout",
+          level: "warn",
+        },
+      ],
+    })
 
-  const client = new PrismaClient()
+    // Adiciona um listener para queries (isso é suportado pelo Prisma)
+    client.$on("query", (e: any) => {
+      console.log("Query: " + e.query)
+      console.log("Params: " + e.params)
+      console.log("Duration: " + e.duration + "ms")
+    })
 
-  if (process.env.NODE_ENV !== 'production') {
-    client
-      .$connect()
-      .then(() => console.log('✅ Conexão com o banco de dados estabelecida'))
-      .catch((e) => {
-        console.error('❌ Erro ao conectar com o banco de dados:', e)
-        process.exit(1) // encerra o processo em caso de erro grave no dev
-      })
+    return client
+  } catch (error) {
+    console.error("Erro ao criar cliente Prisma:", error)
+    throw error
   }
-
-  return client
 }
 
-// Usa uma instância única global em dev, nova em prod
-export const db = globalThis.prisma ?? createPrismaClient()
+// Inicializa o cliente Prisma com verificação de disponibilidade
+export const db = globalForPrisma.prisma || createPrismaClient()
 
-if (process.env.NODE_ENV !== 'production') {
-  globalThis.prisma = db
+// Mantém a mesma instância do Prisma Client em desenvolvimento
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = db
+}
+
+// Função para verificar se o cliente Prisma está disponível
+export async function isPrismaClientAvailable() {
+  try {
+    await db.$queryRaw`SELECT 1`
+    return true
+  } catch (error) {
+    console.error("Prisma Client não está disponível:", error)
+    return false
+  }
+}
+
+// Função para tentar reconectar
+export async function reconnectPrisma() {
+  try {
+    await db.$disconnect()
+    await db.$connect()
+    return true
+  } catch (error) {
+    console.error("Falha ao reconectar Prisma Client:", error)
+    return false
+  }
 }

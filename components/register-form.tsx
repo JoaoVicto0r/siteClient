@@ -13,14 +13,17 @@ import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import { registerUser } from "@/lib/actions"
 
+// Expressão regular para validar o formato do telefone
+const phoneRegex = /^[0-9]{9,11}$/; // Aceita números de 9 a 11 dígitos
+
 const formSchema = z
   .object({
     name: z.string().min(2, {
       message: "O nome deve ter pelo menos 2 caracteres.",
     }),
-    phone: z.string().min(9, {
-      message: "O número de telefone deve ter pelo menos 9 dígitos.",
-    }),
+    phone: z.string()
+      .min(9, { message: "O número de telefone deve ter pelo menos 9 dígitos." })
+      .regex(phoneRegex, { message: "O número de telefone é inválido." }),
     password: z.string().min(6, {
       message: "A senha deve ter pelo menos 6 caracteres.",
     }),
@@ -57,17 +60,17 @@ export default function RegisterForm() {
       })
 
       if (result.success) {
-  toast({
-    title: "Conta criada com sucesso!",
-    description: "Você já pode fazer login.",
-  })
-  router.push("/")
-} else {
-  toast({
-    variant: "destructive",
-    title: "Erro ao criar conta",
-    description: "Erro: " + (result.error ?? "Desconhecido"),
-  })
+        toast({
+          title: "Conta criada com sucesso!",
+          description: "Você já pode fazer login.",
+        })
+        router.push("/")
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Erro ao criar conta",
+          description: result.error ?? "Erro desconhecido",
+        })
       }
     } catch (error) {
       toast({
@@ -96,7 +99,11 @@ export default function RegisterForm() {
                 <FormItem>
                   <FormLabel>Nome Completo</FormLabel>
                   <FormControl>
-                    <Input placeholder="Digite seu nome completo" {...field} />
+                    <Input
+                      placeholder="Digite seu nome completo"
+                      {...field}
+                      aria-label="Nome Completo"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -109,7 +116,11 @@ export default function RegisterForm() {
                 <FormItem>
                   <FormLabel>Número de Telefone</FormLabel>
                   <FormControl>
-                    <Input placeholder="Digite seu número de telefone" {...field} />
+                    <Input
+                      placeholder="Digite seu número de telefone"
+                      {...field}
+                      aria-label="Número de Telefone"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -122,7 +133,12 @@ export default function RegisterForm() {
                 <FormItem>
                   <FormLabel>Senha</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="Digite sua senha" {...field} />
+                    <Input
+                      type="password"
+                      placeholder="Digite sua senha"
+                      {...field}
+                      aria-label="Senha"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -135,13 +151,23 @@ export default function RegisterForm() {
                 <FormItem>
                   <FormLabel>Confirmar Senha</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="Confirme sua senha" {...field} />
+                    <Input
+                      type="password"
+                      placeholder="Confirme sua senha"
+                      {...field}
+                      aria-label="Confirmar Senha"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading}
+              aria-label="Criar Conta"
+            >
               {isLoading ? "Criando conta..." : "Criar Conta"}
             </Button>
           </form>

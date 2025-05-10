@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { toast } from "@/components/ui/use-toast"
 import { getWithdrawalRequests, approveWithdrawal, rejectWithdrawal } from "@/lib/actions"
+import { useRouter } from "next/navigation"
 
 interface WithdrawalRequest {
   id: string
@@ -19,20 +20,35 @@ interface WithdrawalRequest {
   createdAt: string
 }
 
-export function AdminWithdrawalRequests() {
+export default function AdminWithdrawalRequests() {
   const [requests, setRequests] = useState<WithdrawalRequest[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [processingId, setProcessingId] = useState<string | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
     fetchRequests()
+
+    // Configurar um intervalo para atualizar os dados a cada 30 segundos
+    const intervalId = setInterval(() => {
+      fetchRequests()
+    }, 30000)
+
+    return () => clearInterval(intervalId)
   }, [])
 
   const fetchRequests = async () => {
     try {
       setIsLoading(true)
       const data = await getWithdrawalRequests()
-      setRequests(data)
+      // Convert Date objects to strings if needed
+      setRequests(
+        data.map((item) => ({
+          ...item,
+          createdAt: item.createdAt instanceof Date ? item.createdAt.toISOString() : item.createdAt,
+        })),
+      )
+      console.log("Solicitações de retirada carregadas:", data.length)
     } catch (error) {
       console.error("Erro ao buscar solicitações de retirada:", error)
       toast({
@@ -55,6 +71,7 @@ export function AdminWithdrawalRequests() {
           description: "A solicitação de retirada foi aprovada com sucesso.",
         })
         fetchRequests()
+        router.refresh() // Força a atualização da página
       } else {
         toast({
           variant: "destructive",
@@ -83,6 +100,7 @@ export function AdminWithdrawalRequests() {
           description: "A solicitação de retirada foi recusada.",
         })
         fetchRequests()
+        router.refresh() // Força a atualização da página
       } else {
         toast({
           variant: "destructive",
@@ -146,9 +164,14 @@ export function AdminWithdrawalRequests() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Solicitações de Retirada</CardTitle>
-        <CardDescription>Gerencie as solicitações de retirada dos usuários.</CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Solicitações de Retirada</CardTitle>
+          <CardDescription>Gerencie as solicitações de retirada dos usuários.</CardDescription>
+        </div>
+        <Button onClick={fetchRequests} variant="outline" size="sm">
+          Atualizar
+        </Button>
       </CardHeader>
       <CardContent>
         {isLoading ? (

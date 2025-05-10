@@ -1,13 +1,10 @@
-import { AdminUsersList } from "@/components/admin-users-list"
+import AdminWithdrawalRequests from "@/components/admin-withdrawal-requests"
 
-// Forçar renderização dinâmica
-export const dynamic = "force-dynamic"
-
-export default function AdminUsersPage() {
+export default function AdminPage() {
   return (
-    <div className="space-y-8">
-      <h1 className="text-2xl font-bold">Gerenciamento de Usuários</h1>
-      <AdminUsersList />
+    <div className="container mx-auto py-8">
+      <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
+      <AdminWithdrawalRequests />
     </div>
   )
 }

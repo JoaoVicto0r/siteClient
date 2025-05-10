@@ -296,6 +296,9 @@ export async function requestWithdrawal({ iban, amount }: { iban: string; amount
       return { success: false, insufficientFunds: true, error: "Saldo de retirada insuficiente" }
     }
 
+    // Log para depuração
+    console.log(`Criando solicitação de retirada para usuário ${session.id}, valor: ${amount}, IBAN: ${iban}`)
+
     // Create withdrawal request and update wallet
     await db.$transaction([
       db.withdrawalRequest.create({
@@ -314,7 +317,11 @@ export async function requestWithdrawal({ iban, amount }: { iban: string; amount
       }),
     ])
 
+    // Revalidar os caminhos necessários
     revalidatePath("/dashboard/withdrawal-history")
+    revalidatePath("/admin") // Importante: revalidar também o painel admin
+
+    console.log("Solicitação de retirada criada com sucesso")
     return { success: true }
   } catch (error) {
     console.error("Error requesting withdrawal:", error)
@@ -345,24 +352,34 @@ export async function getWithdrawalRequests() {
     throw new Error("Acesso não autorizado")
   }
 
-  const requests = await db.withdrawalRequest.findMany({
-    orderBy: [
-      { status: "asc" }, // PENDING first
-      { createdAt: "desc" },
-    ],
-    include: {
-      user: {
-        select: {
-          name: true,
+  try {
+    // Log para depuração
+    console.log("Buscando solicitações de retirada para o admin")
+
+    const requests = await db.withdrawalRequest.findMany({
+      orderBy: [
+        { status: "asc" }, // PENDING first
+        { createdAt: "desc" },
+      ],
+      include: {
+        user: {
+          select: {
+            name: true,
+          },
         },
       },
-    },
-  })
+    })
 
-  return requests.map((req) => ({
-    ...req,
-    userName: req.user.name,
-  }))
+    console.log(`Encontradas ${requests.length} solicitações de retirada`)
+
+    return requests.map((req) => ({
+      ...req,
+      userName: req.user.name,
+    }))
+  } catch (error) {
+    console.error("Erro ao buscar solicitações de retirada:", error)
+    throw error
+  }
 }
 
 export async function approveWithdrawal(id: string) {

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { logoutUser } from "@/lib/actions"
 import { Logo } from "@/components/logo"
+import { MobileMenu } from "@/components/mobile-menu"
 
 export function AdminHeader() {
   const pathname = usePathname()
@@ -13,6 +14,15 @@ export function AdminHeader() {
   const isActive = (path: string) => {
     return pathname === path
   }
+
+  // Definindo os itens de navegação
+  const navItems = [
+    { title: "Dashboard", href: "/admin" },
+    { title: "Usuários", href: "/admin/users" },
+    { title: "Investimentos", href: "/admin/investments" },
+    { title: "Referências", href: "/admin/referrals" },
+    { title: "Diagnósticos", href: "/admin/diagnostics" },
+  ]
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -22,47 +32,23 @@ export function AdminHeader() {
             <Logo className="h-6 w-6" />
             <span className="font-bold">TotalEnergies Admin</span>
           </Link>
+
+          {/* Menu Mobile - visível em dispositivos móveis */}
+          <MobileMenu items={navItems} />
+
+          {/* Navegação Desktop - visível em telas maiores */}
           <nav className="hidden md:flex gap-6">
-            <Link
-              href="/admin"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/admin") ? "text-foreground" : "text-muted-foreground"
-              }`}
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/admin/users"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/admin/users") ? "text-foreground" : "text-muted-foreground"
-              }`}
-            >
-              Usuários
-            </Link>
-            <Link
-              href="/admin/investments"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/admin/investments") ? "text-foreground" : "text-muted-foreground"
-              }`}
-            >
-              Investimentos
-            </Link>
-            <Link
-              href="/admin/referrals"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/admin/referrals") ? "text-foreground" : "text-muted-foreground"
-              }`}
-            >
-              Referências
-            </Link>
-            <Link
-              href="/admin/diagnostics"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/admin/diagnostics") ? "text-foreground" : "text-muted-foreground"
-              }`}
-            >
-              Diagnósticos
-            </Link>
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  isActive(item.href) ? "text-foreground" : "text-muted-foreground"
+                }`}
+              >
+                {item.title}
+              </Link>
+            ))}
           </nav>
         </div>
         <div className="flex items-center gap-2">

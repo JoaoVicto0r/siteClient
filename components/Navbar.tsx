@@ -1,3 +1,4 @@
+'use client'
 // components/Navbar.tsx
 import { useState } from 'react';
 

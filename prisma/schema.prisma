@@ -1,71 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
-   log = ["query", "info", "warn", "error"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
- 
 }
 
-
 model User {
-  id                 String              @id @default(cuid())
+  id                 String              @id @default(uuid())
   name               String
   phone              String              @unique
   password           String
   role               Role                @default(USER)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
-  investments        Investment[]
-  sessions           Session[]
   wallet             Wallet?
+  investments        Investment[]
   withdrawalRequests WithdrawalRequest[]
+  sessions           Session[]
+  referrals          Referral[]
 }
 
 model Wallet {
-  id                String   @id @default(cuid())
+  id                String   @id @default(uuid())
   userId            String   @unique
-  balance           Float    @default(0)
-  withdrawalBalance Float    @default(0)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance           Int      @default(0)
+  withdrawalBalance Int      @default(0)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Investment {
-  id          String           @id @default(cuid())
+  id          String   @id @default(uuid())
   userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   packageId   String
-  amount      Float
-  dailyReturn Float
+  amount      Int
+  dailyReturn Int
   duration    Int
-  status      InvestmentStatus @default(ACTIVE)
-  startDate   DateTime         @default(now())
+  status      Status   @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   endDate     DateTime
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model WithdrawalRequest {
-  id        String           @id @default(cuid())
+  id        String           @id @default(uuid())
   userId    String
-  amount    Float
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount    Int
   iban      String
   status    WithdrawalStatus @default(PENDING)
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Session {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Vamos criar uma nova tabela para armazenar as referências
+model Referral {
+  id           String   @id @default(uuid())
+  referralCode String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 enum Role {
@@ -73,7 +83,7 @@ enum Role {
   ADMIN
 }
 
-enum InvestmentStatus {
+enum Status {
   ACTIVE
   COMPLETED
   CANCELLED

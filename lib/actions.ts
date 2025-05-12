@@ -5,6 +5,11 @@ import { redirect } from "next/navigation"
 import { db } from "@/lib/db"
 import { clearSession, createSession, getSession, hashPassword, verifyPassword } from "@/lib/auth"
 
+// Função simples de geração de ID
+function generateReferralCode() {
+  return Math.random().toString(36).substring(2, 10)
+}
+
 // Função auxiliar para tratamento de erros
 function handleDatabaseError(error: unknown, context: string) {
   console.error(`Erro em ${context}:`, error)
@@ -24,7 +29,17 @@ function handleDatabaseError(error: unknown, context: string) {
 }
 
 // Auth actions
-export async function registerUser({ name, phone, password }: { name: string; phone: string; password: string }) {
+export async function registerUser({
+  name,
+  phone,
+  password,
+  referralCode,
+}: {
+  name: string
+  phone: string
+  password: string
+  referralCode?: string
+}): Promise<{ success: boolean; error?: string }> {
   try {
     // Verifica se o cliente Prisma está definido
     if (!db) {
@@ -65,10 +80,36 @@ export async function registerUser({ name, phone, password }: { name: string; ph
 
       const hashedPassword = await hashPassword(password)
 
-      // Create user
-      await db.user.create({
+      // Verificar referência, se fornecida
+      let referrerId = null
+      if (referralCode) {
+        // Buscar usuários que podem ter esse código de referência
+        // Como não temos uma tabela específica, vamos usar uma abordagem alternativa
+        // Podemos armazenar o código de referência no nome do usuário temporariamente
+        // Isso é apenas uma solução temporária até implementarmos corretamente
+        const potentialReferrers = await db.user.findMany({
+          where: {
+            name: {
+              contains: referralCode,
+            },
+          },
+          select: {
+            id: true,
+          },
+        })
+
+        if (potentialReferrers.length > 0) {
+          referrerId = potentialReferrers[0].id
+          console.log(`Usuário sendo registrado com referência de: ${referrerId}`)
+        } else {
+          console.log(`Código de referência inválido: ${referralCode}`)
+        }
+      }
+
+      // Create user with wallet
+      const newUser = await db.user.create({
         data: {
-          name,
+          name: `${name}|${generateReferralCode()}`, // Armazenar o código de referência no nome temporariamente
           phone,
           password: hashedPassword,
           wallet: {
@@ -79,6 +120,17 @@ export async function registerUser({ name, phone, password }: { name: string; ph
           },
         },
       })
+
+      // Se houver um referenciador, adicionar bônus
+      if (referrerId) {
+        // Atualizar o saldo do referenciador
+        await db.wallet.updateMany({
+          where: { userId: referrerId },
+          data: {
+            balance: { increment: 1000 }, // Bônus de 1000 KZ por referência
+          },
+        })
+      }
 
       return { success: true }
     } catch (dbError) {
@@ -94,20 +146,29 @@ export async function registerUser({ name, phone, password }: { name: string; ph
 }
 
 // Mock functions for Prisma availability and reconnection
-// Replace these with your actual implementation if needed
 async function isPrismaClientAvailable(): Promise<boolean> {
-  // Implement your logic to check Prisma client availability here
-  // For example, you might try to ping the database
-  return true // Placeholder: Assume it's always available for now
+  try {
+    await db.$queryRaw`SELECT 1`
+    return true
+  } catch (error) {
+    return false
+  }
 }
 
 async function reconnectPrisma(): Promise<boolean> {
-  // Implement your logic to reconnect to Prisma here
-  // This might involve creating a new Prisma client instance
-  return true // Placeholder: Assume reconnection is always successful for now
+  try {
+    await db.$disconnect()
+    await db.$connect()
+    return true
+  } catch (error) {
+    return false
+  }
 }
 
-export async function loginUser({ phone, password }: { phone: string; password: string }) {
+export async function loginUser({
+  phone,
+  password,
+}: { phone: string; password: string }): Promise<{ success: boolean; role?: string; error?: string }> {
   try {
     // Verifica se o cliente Prisma está disponível
     if (!db) {
@@ -176,6 +237,18 @@ export async function logoutUser() {
   redirect("/")
 }
 
+// Função para extrair o código de referência do nome do usuário
+function extractReferralCode(name: string): string {
+  const parts = name.split("|")
+  return parts.length > 1 ? parts[1] : generateReferralCode()
+}
+
+// Função para extrair o nome real do usuário
+function extractRealName(name: string): string {
+  const parts = name.split("|")
+  return parts[0]
+}
+
 // Wallet actions
 export async function getUserWallet() {
   const session = await getSession()
@@ -192,10 +265,25 @@ export async function getUserWallet() {
     throw new Error("Carteira não encontrada")
   }
 
+  // Buscar o usuário para extrair o código de referência do nome
+  const user = await db.user.findUnique({
+    where: { id: session.id },
+  })
+
+  if (!user) {
+    throw new Error("Usuário não encontrado")
+  }
+
+  const referralCode = extractReferralCode(user.name)
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://seu-site.com"
+
   return {
     id: session.phone,
     balance: wallet.balance,
     withdrawalBalance: wallet.withdrawalBalance,
+    referralBalance: 0, // Valor padrão
+    referralCode,
+    referralLink: `${appUrl}/register?ref=${referralCode}`,
   }
 }
 
@@ -287,6 +375,11 @@ export async function requestWithdrawal({ iban, amount }: { iban: string; amount
   }
 
   try {
+    // Verificar valor mínimo de saque (2000 KZ)
+    if (amount < 2000) {
+      return { success: false, error: "O valor mínimo de retirada é de 2.000 AOA." }
+    }
+
     // Check if user has enough withdrawal balance
     const wallet = await db.wallet.findUnique({
       where: { userId: session.id },
@@ -344,6 +437,19 @@ export async function getUserWithdrawals() {
   return withdrawals
 }
 
+// Referral actions
+export async function getUserReferrals() {
+  const session = await getSession()
+
+  if (!session) {
+    throw new Error("Usuário não autenticado")
+  }
+
+  // Como não temos uma tabela de referências, vamos retornar uma lista vazia por enquanto
+  // Em uma implementação real, você teria uma tabela para rastrear referências
+  return []
+}
+
 // Admin actions
 export async function getWithdrawalRequests() {
   const session = await getSession()
@@ -374,7 +480,7 @@ export async function getWithdrawalRequests() {
 
     return requests.map((req) => ({
       ...req,
-      userName: req.user.name,
+      userName: extractRealName(req.user.name),
     }))
   } catch (error) {
     console.error("Erro ao buscar solicitações de retirada:", error)
@@ -461,12 +567,25 @@ export async function getAllUsers() {
 
   return users.map((user) => ({
     id: user.id,
-    name: user.name,
+    name: extractRealName(user.name),
     phone: user.phone,
     balance: user.wallet?.balance || 0,
     withdrawalBalance: user.wallet?.withdrawalBalance || 0,
+    referralBalance: 0, // Valor padrão
+    referralCount: 0, // Valor padrão
     createdAt: user.createdAt,
   }))
+}
+
+export async function getAllReferrals() {
+  const session = await getSession()
+
+  if (!session || session.role !== "ADMIN") {
+    throw new Error("Acesso não autorizado")
+  }
+
+  // Como não temos uma tabela de referências, vamos retornar uma lista vazia por enquanto
+  return []
 }
 
 export async function addFundsToUser(userId: string, amount: number) {
@@ -589,7 +708,7 @@ export async function getAllInvestments() {
 
   return investments.map((inv) => ({
     ...inv,
-    userName: inv.user.name,
+    userName: extractRealName(inv.user.name),
     userPhone: inv.user.phone,
   }))
 }

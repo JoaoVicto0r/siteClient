@@ -1,182 +1,139 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { registerUser } from "@/lib/actions"
+import Link from "next/link"
 
-// Expressão regular para validar o formato do telefone
-const phoneRegex = /^[0-9]{9,11}$/; // Aceita números de 9 a 11 dígitos
-
-const formSchema = z
-  .object({
-    name: z.string().min(2, {
-      message: "O nome deve ter pelo menos 2 caracteres.",
-    }),
-    phone: z.string()
-      .min(9, { message: "O número de telefone deve ter pelo menos 9 dígitos." })
-      .regex(phoneRegex, { message: "O número de telefone é inválido." }),
-    password: z.string().min(6, {
-      message: "A senha deve ter pelo menos 6 caracteres.",
-    }),
-    confirmPassword: z.string().min(6, {
-      message: "A confirmação de senha deve ter pelo menos 6 caracteres.",
-    }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "As senhas não coincidem",
-    path: ["confirmPassword"],
-  })
-
-export default function RegisterForm() {
+export function RegisterForm() {
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
+  const searchParams = useSearchParams()
+  const referralCode = searchParams.get("ref") || ""
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      phone: "",
-      password: "",
-      confirmPassword: "",
-    },
-  })
+  const [name, setName] = useState("")
+  const [phone, setPhone] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [referral, setReferral] = useState(referralCode)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true)
-    try {
-      const result = await registerUser({
-        name: values.name,
-        phone: values.phone,
-        password: values.password,
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    if (password !== confirmPassword) {
+      toast({
+        variant: "destructive",
+        title: "Senhas não coincidem",
+        description: "Por favor, verifique se as senhas digitadas são iguais.",
       })
+      setIsSubmitting(false)
+      return
+    }
+
+    try {
+      const result = await registerUser({ name, phone, password, referralCode: referral || undefined })
 
       if (result.success) {
         toast({
-          title: "Conta criada com sucesso!",
-          description: "Você já pode fazer login.",
+          title: "Registro concluído",
+          description: "Sua conta foi criada com sucesso. Faça login para continuar.",
         })
         router.push("/")
       } else {
         toast({
           variant: "destructive",
-          title: "Erro ao criar conta",
-          description: result.error ?? "Erro desconhecido",
+          title: "Erro no registro",
+          description: result.error || "Ocorreu um erro ao criar sua conta.",
         })
       }
     } catch (error) {
+      console.error("Error registering user:", error)
       toast({
         variant: "destructive",
-        title: "Erro ao criar conta",
-        description: "Ocorreu um erro ao tentar criar sua conta. Tente novamente.",
+        title: "Erro no registro",
+        description: "Ocorreu um erro ao criar sua conta.",
       })
     } finally {
-      setIsLoading(false)
+      setIsSubmitting(false)
     }
   }
 
   return (
-    <Card>
+    <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>Criar Conta</CardTitle>
-        <CardDescription>Preencha os campos abaixo para criar sua conta na Totalenergies.</CardDescription>
+        <CardDescription>Preencha os dados abaixo para se registrar.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome Completo</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Digite seu nome completo"
-                      {...field}
-                      aria-label="Nome Completo"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Nome Completo</Label>
+            <Input
+              id="name"
+              placeholder="Digite seu nome completo"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
             />
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Número de Telefone</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Digite seu número de telefone"
-                      {...field}
-                      aria-label="Número de Telefone"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Telefone</Label>
+            <Input
+              id="phone"
+              placeholder="Digite seu número de telefone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
             />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Senha</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Digite sua senha"
-                      {...field}
-                      aria-label="Senha"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Senha</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="Digite sua senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
             />
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirmar Senha</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Confirme sua senha"
-                      {...field}
-                      aria-label="Confirmar Senha"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirmar Senha</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="Confirme sua senha"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
             />
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-              aria-label="Criar Conta"
-            >
-              {isLoading ? "Criando conta..." : "Criar Conta"}
-            </Button>
-          </form>
-        </Form>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="referral">Código de Convite (opcional)</Label>
+            <Input
+              id="referral"
+              placeholder="Digite o código de convite, se tiver"
+              value={referral}
+              onChange={(e) => setReferral(e.target.value)}
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Processando..." : "Registrar"}
+          </Button>
+        </form>
       </CardContent>
       <CardFooter className="flex justify-center">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Já tem uma conta?{" "}
-          <Link href="/" className="text-blue-600 hover:underline">
+          <Link href="/" className="text-blue-600 hover:underline dark:text-blue-400">
             Faça login
           </Link>
         </p>
@@ -184,3 +141,5 @@ export default function RegisterForm() {
     </Card>
   )
 }
+
+export default RegisterForm

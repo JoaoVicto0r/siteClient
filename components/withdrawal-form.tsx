@@ -1,120 +1,149 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { requestWithdrawal } from "@/lib/actions"
 
-const formSchema = z.object({
-  iban: z.string().min(10, {
-    message: "O IBAN deve ter pelo menos 10 caracteres.",
-  }),
-  amount: z.coerce.number().min(5000, {
-    message: "O valor mínimo de retirada é de 5.000 AOA.",
-  }),
-})
+interface WithdrawalFormProps {
+  withdrawalBalance: number
+}
 
-export function WithdrawalForm() {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
+export function WithdrawalForm({ withdrawalBalance }: WithdrawalFormProps) {
+  const [iban, setIban] = useState("")
+  const [amount, setAmount] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      iban: "",
-      amount: 5000,
-    },
-  })
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true)
     try {
-      const result = await requestWithdrawal(values)
-      if (result.success) {
+      const amountValue = Number.parseInt(amount, 10)
+
+      if (isNaN(amountValue) || amountValue <= 0) {
         toast({
-          title: "Solicitação enviada com sucesso!",
-          description: "Sua solicitação de retirada foi enviada e está em análise.",
+          variant: "destructive",
+          title: "Valor inválido",
+          description: "Por favor, insira um valor válido para retirada.",
         })
-        form.reset()
-        router.push("/dashboard/withdrawal-history")
-      } else if (result.insufficientFunds) {
+        setIsSubmitting(false)
+        return
+      }
+
+      // Verificar valor mínimo de 2000 KZ
+      if (amountValue < 2000) {
+        toast({
+          variant: "destructive",
+          title: "Valor mínimo não atingido",
+          description: "O valor mínimo para retirada é de 2.000 AOA.",
+        })
+        setIsSubmitting(false)
+        return
+      }
+
+      if (amountValue > withdrawalBalance) {
         toast({
           variant: "destructive",
           title: "Saldo insuficiente",
           description: "Você não tem saldo suficiente para esta retirada.",
         })
+        setIsSubmitting(false)
+        return
+      }
+
+      if (!iban.trim()) {
+        toast({
+          variant: "destructive",
+          title: "IBAN obrigatório",
+          description: "Por favor, insira seu IBAN para retirada.",
+        })
+        setIsSubmitting(false)
+        return
+      }
+
+      const result = await requestWithdrawal({ iban, amount: amountValue })
+
+      if (result.success) {
+        toast({
+          title: "Solicitação enviada",
+          description: "Sua solicitação de retirada foi enviada com sucesso.",
+        })
+        setIban("")
+        setAmount("")
       } else {
         toast({
           variant: "destructive",
           title: "Erro ao solicitar retirada",
-          description: result.error || "Ocorreu um erro ao solicitar a retirada.",
+          description: result.error || "Ocorreu um erro ao processar sua solicitação.",
         })
       }
     } catch (error) {
+      console.error("Error requesting withdrawal:", error)
       toast({
         variant: "destructive",
         title: "Erro ao solicitar retirada",
-        description: "Ocorreu um erro ao solicitar a retirada. Tente novamente mais tarde.",
+        description: "Ocorreu um erro ao processar sua solicitação.",
       })
     } finally {
-      setIsLoading(false)
+      setIsSubmitting(false)
     }
   }
 
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat("pt-AO", {
+      style: "currency",
+      currency: "AOA",
+      minimumFractionDigits: 0,
+    }).format(value)
+  }
+
   return (
-    <Card className="max-w-2xl mx-auto">
+    <Card>
       <CardHeader>
         <CardTitle>Solicitar Retirada</CardTitle>
-        <CardDescription>
-          Preencha os dados abaixo para solicitar uma retirada. O valor mínimo é de 5.000 AOA.
-        </CardDescription>
+        <CardDescription>Solicite a retirada do seu saldo disponível.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="iban"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>IBAN</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Digite seu IBAN" {...field} />
-                  </FormControl>
-                  <FormDescription>Insira o IBAN da conta bancária para receber o valor.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="iban">IBAN</Label>
+            <Input
+              id="iban"
+              placeholder="Insira seu IBAN"
+              value={iban}
+              onChange={(e) => setIban(e.target.value)}
+              required
             />
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Valor (AOA)</FormLabel>
-                  <FormControl>
-                    <Input type="number" min={5000} step={1000} {...field} />
-                  </FormControl>
-                  <FormDescription>O valor mínimo de retirada é de 5.000 AOA (5% do valor investido).</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="amount">Valor (AOA)</Label>
+            <Input
+              id="amount"
+              type="number"
+              placeholder="Insira o valor para retirada"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              min="2000"
+              step="1000"
+              required
             />
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Enviando solicitação..." : "Solicitar Retirada"}
-            </Button>
-          </form>
-        </Form>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Valor mínimo: 2.000 AOA. Saldo disponível: {formatCurrency(withdrawalBalance)}
+            </p>
+          </div>
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Processando..." : "Solicitar Retirada"}
+          </Button>
+        </form>
       </CardContent>
-      <CardFooter className="flex justify-center text-sm text-gray-500">
-        As solicitações de retirada são processadas em até 24 horas úteis.
+      <CardFooter className="flex flex-col items-start text-xs text-gray-500 dark:text-gray-400">
+        <p>Nota: As solicitações de retirada são processadas em até 48 horas úteis.</p>
       </CardFooter>
     </Card>
   )

@@ -9,9 +9,8 @@ export default async function ReferralsPage() {
   // Corrigindo o link de referência para usar o URL correto do site
   const referralInfo = {
     referralCode: walletInfo.referralCode || "",
-    referralLink:
-      walletInfo.referralLink ||
-      `${process.env.NEXT_PUBLIC_APP_URL || "https://site-client-one.vercel.app"}/register?ref=${walletInfo.referralCode}`,
+    // Usando o URL correto do site
+    referralLink: `https://site-client-one.vercel.app/register?ref=${walletInfo.referralCode}`,
   }
 
   return (

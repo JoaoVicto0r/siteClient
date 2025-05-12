@@ -1,26 +1,27 @@
-import type React from "react"
-import { redirect } from "next/navigation"
-import { getSession } from "@/lib/auth"
-import { AdminHeader } from "@/components/admin-header"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { ThemeProvider } from "@/components/theme-provider"
 
-// Forçar renderização dinâmica
-export const dynamic = "force-dynamic"
+const inter = Inter({ subsets: ["latin"] })
 
-export default async function AdminLayout({
+export const metadata: Metadata = {
+  title: "TotalEnergies Investimentos",
+  description: "Plataforma de investimentos TotalEnergies",
+}
+
+export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
-  const session = await getSession()
-
-  if (!session || session.role !== "ADMIN") {
-    redirect("/")
-  }
-
+}>) {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
-      <AdminHeader />
-      <main className="flex-1 container mx-auto px-4 py-8">{children}</main>
-    </div>
+    <html lang="pt" suppressHydrationWarning>
+      <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
   )
 }

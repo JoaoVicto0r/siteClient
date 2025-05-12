@@ -1,3 +1,5 @@
+"use client"
+
 import { redirect } from "next/navigation"
 import { db } from "@/lib/db"
 import { getSession } from "@/lib/auth"

@@ -355,12 +355,15 @@ export async function purchasePackage(packageId: string) {
 
 function getPackageDetails(packageId: string) {
   const packages = {
-    "vip-1": { price: 10000, dailyReturn: 1000, duration: 31 },
-    "vip-2": { price: 30000, dailyReturn: 3000, duration: 31 },
-    "vip-3": { price: 55000, dailyReturn: 5500, duration: 60 },
-    "vip-4": { price: 75000, dailyReturn: 8000, duration: 60 },
-    "vip-5": { price: 150000, dailyReturn: 45000, duration: 7 },
-    "vip-6": { price: 365000, dailyReturn: 120000, duration: 7 },
+    "vip-1": { price: 6000, dailyReturn: 300, duration: 365 },
+    "vip-2": { price: 15000, dailyReturn: 800, duration: 365 },
+    "vip-3": { price: 31000, dailyReturn: 1800, duration: 365 },
+    "vip-4": { price: 50000, dailyReturn: 3100, duration: 365 },
+    "vip-5": { price: 100000, dailyReturn: 7300, duration: 365 },
+    "vip-6": { price: 200000, dailyReturn: 16400, duration: 365 },
+    "vip-7": { price: 500000, dailyReturn: 41666, duration: 365 },
+    "vip-8": { price: 1000000, dailyReturn: 90900, duration: 365 },
+    "vip-9": { price: 3000000, dailyReturn: 360000, duration: 365 },
   }
 
   return packages[packageId as keyof typeof packages]

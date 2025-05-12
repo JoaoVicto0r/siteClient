@@ -130,6 +130,9 @@ export function AdminInvestmentsList() {
       "vip-4": "VIP-4",
       "vip-5": "VIP-5",
       "vip-6": "VIP-6",
+      "vip-7": "VIP-7",
+      "vip-8": "VIP-8",
+      "vip-9": "VIP-9",
     }
     return packages[packageId] || packageId
   }

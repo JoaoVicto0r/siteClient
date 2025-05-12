@@ -1,10 +1,9 @@
-
+import TopNavbar from "@/components/TopNavbar"
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import Navbar from "@/components/Navbar" // ✅ importe aqui
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -22,7 +21,7 @@ export default function RootLayout({
     <html lang="pt" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <Navbar /> {/* ✅ adicione o navbar aqui */}
+          <TopNavbar /> {/* aqui está o componente correto */}
           {children}
         </ThemeProvider>
       </body>

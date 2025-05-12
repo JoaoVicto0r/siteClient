@@ -16,6 +16,9 @@ const config = {
       padding: "2rem",
       screens: {
         "2xl": "1400px",
+        "xl": "1rem",  // Ajustar padding em telas menores
+        "lg": "1rem",
+        "sm": "0.5rem",
       },
     },
     extend: {

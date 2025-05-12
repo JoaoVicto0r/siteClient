@@ -12,15 +12,22 @@ const config = {
   prefix: "",
   theme: {
     container: {
-      center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-        "xl": "1rem",  // Ajustar padding em telas menores
-        "lg": "1rem",
-      "sm": "0.5rem",
-      },
-    },
+  center: true,
+  padding: {
+    DEFAULT: "2rem",
+    sm: "1rem",
+    lg: "2rem",
+    xl: "2rem",
+    "2xl": "2rem",
+  },
+  screens: {
+    sm: "640px",
+    md: "768px",
+    lg: "1024px",
+    xl: "1280px",
+    "2xl": "1400px",
+  },
+},
     extend: {
       colors: {
         border: "hsl(var(--border))",

@@ -10,6 +10,8 @@ import { toast } from "@/components/ui/use-toast"
 import { getUserReferrals } from "@/lib/actions"
 import { Copy, Users } from "lucide-react"
 
+
+
 interface ReferralInfo {
   referralCode: string
   referralLink: string
@@ -22,10 +24,12 @@ interface Referral {
   isActive: boolean
 }
 
+
 export function ReferralDashboard({ referralInfo }: { referralInfo: ReferralInfo }) {
   const [referrals, setReferrals] = useState<Referral[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
+  
 
   useEffect(() => {
     const fetchReferrals = async () => {

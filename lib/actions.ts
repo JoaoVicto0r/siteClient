@@ -41,13 +41,13 @@ export async function registerUser({
   referralCode?: string
 }): Promise<{ success: boolean; error?: string }> {
   try {
-    // Verifica se o cliente Prisma está definido
+    
     if (!db) {
       console.error("Cliente Prisma não está definido")
       return { success: false, error: "Erro de conexão com o banco de dados" }
     }
 
-    // Tenta reconectar se necessário
+    
     try {
       const isAvailable = await isPrismaClientAvailable()
       if (!isAvailable) {
@@ -69,7 +69,7 @@ export async function registerUser({
     }
 
     try {
-      // Check if user already exists
+     
       const existingUser = await db.user.findUnique({
         where: { phone },
       })
@@ -80,13 +80,10 @@ export async function registerUser({
 
       const hashedPassword = await hashPassword(password)
 
-      // Verificar referência, se fornecida
+      
       let referrerId = null
       if (referralCode) {
-        // Buscar usuários que podem ter esse código de referência
-        // Como não temos uma tabela específica, vamos usar uma abordagem alternativa
-        // Podemos armazenar o código de referência no nome do usuário temporariamente
-        // Isso é apenas uma solução temporária até implementarmos corretamente
+        
         const potentialReferrers = await db.user.findMany({
           where: {
             name: {
@@ -106,10 +103,10 @@ export async function registerUser({
         }
       }
 
-      // Create user with wallet
+     
       const newUser = await db.user.create({
         data: {
-          name: `${name}|${generateReferralCode()}`, // Armazenar o código de referência no nome temporariamente
+          name: `${name}|${generateReferralCode()}`, 
           phone,
           password: hashedPassword,
           wallet: {
@@ -123,11 +120,11 @@ export async function registerUser({
 
       // Se houver um referenciador, adicionar bônus
       if (referrerId) {
-        // Atualizar o saldo do referenciador
+        
         await db.wallet.updateMany({
           where: { userId: referrerId },
           data: {
-            balance: { increment: 1000 }, // Bônus de 1000 KZ por referência
+            balance: { increment: 0 }, 
           },
         })
       }
@@ -145,7 +142,7 @@ export async function registerUser({
   }
 }
 
-// Mock functions for Prisma availability and reconnection
+
 async function isPrismaClientAvailable(): Promise<boolean> {
   try {
     await db.$queryRaw`SELECT 1`
@@ -170,13 +167,13 @@ export async function loginUser({
   password,
 }: { phone: string; password: string }): Promise<{ success: boolean; role?: string; error?: string }> {
   try {
-    // Verifica se o cliente Prisma está disponível
+    
     if (!db) {
       console.error("Cliente Prisma não está definido")
       return { success: false, error: "Erro de conexão com o banco de dados" }
     }
 
-    // Tenta reconectar se necessário
+    
     try {
       const isAvailable = await isPrismaClientAvailable()
       if (!isAvailable) {

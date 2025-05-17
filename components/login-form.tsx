@@ -44,7 +44,7 @@ export default function LoginForm() {
           description: "Redirecionando...",
         })
 
-        // Redirecionar com base no papel do usuário
+        
         if (result.role === "ADMIN") {
           router.push("/admin")
         } else {

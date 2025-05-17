@@ -1,5 +1,7 @@
 import { getUserWallet } from "@/lib/actions"
 import { ReferralDashboard } from "@/components/referral-dashboard"
+import { DashboardHeader } from "@/components/dashboard-header"
+import { PageHeader } from "@/components/page-header"
 
 export const dynamic = "force-dynamic"
 
@@ -14,15 +16,15 @@ export default async function ReferralsPage() {
   }
 
   return (
-    <div className="container py-6">
-      <div className="flex flex-col gap-4">
-        <h1 className="text-3xl font-bold">Programa de Referência</h1>
-        <p className="text-muted-foreground">
-          Convide amigos para a plataforma e ganhe bônus quando eles se registrarem.
-        </p>
-
+    <>
+      <DashboardHeader />
+      <div className="container py-6">
+        <PageHeader
+          heading="Programa de Referência"
+          text="Convide amigos para a plataforma e ganhe bônus quando eles se registrarem."
+        />
         <ReferralDashboard referralInfo={referralInfo} />
       </div>
-    </div>
+    </>
   )
 }

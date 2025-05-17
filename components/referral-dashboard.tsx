@@ -26,14 +26,6 @@ export function ReferralDashboard({ referralInfo }: { referralInfo: ReferralInfo
   const [referrals, setReferrals] = useState<Referral[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-   const navItems = [
-    { title: "Dashboard", href: "/dashboard" },
-    { title: "Carteira", href: "/dashboard/wallet" },
-    { title: "Depósito", href: "/dashboard/deposit" },
-    { title: "Retirada", href: "/dashboard/withdrawal" },
-    { title: "Histórico", href: "/dashboard/withdrawal-history" },
-    { title: "Referências", href: "/dashboard/referrals" },
-  ]
 
   useEffect(() => {
     const fetchReferrals = async () => {

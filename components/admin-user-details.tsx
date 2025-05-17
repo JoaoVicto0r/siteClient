@@ -75,7 +75,7 @@ export function AdminUserDetails({ user }: { user: User }) {
           ...investment,
           startDate: investment.startDate.toISOString(),
           endDate: investment.endDate.toISOString(),
-          // Não precisamos incluir createdAt e updatedAt pois não estamos usando na interface
+        
         }))
 
         setInvestments(formattedInvestments)
@@ -171,6 +171,9 @@ export function AdminUserDetails({ user }: { user: User }) {
       "vip-4": "VIP-4",
       "vip-5": "VIP-5",
       "vip-6": "VIP-6",
+      "vip-7": "VIP-7",
+      "vip-8": "VIP-8",
+      "vip-9": "VIP-9",
     }
     return packages[packageId] || packageId
   }
@@ -246,7 +249,7 @@ export function AdminUserDetails({ user }: { user: User }) {
       <Tabs defaultValue="balance">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="balance">Adicionar Saldo</TabsTrigger>
-          <TabsTrigger value="withdrawal">Adicionar Saldo de Retirada</TabsTrigger>
+          <TabsTrigger value="withdrawal">Retirada Saldo</TabsTrigger>
         </TabsList>
         <TabsContent value="balance">
           <Card>

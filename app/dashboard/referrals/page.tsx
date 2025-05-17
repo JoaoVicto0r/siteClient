@@ -8,10 +8,10 @@ export const dynamic = "force-dynamic"
 export default async function ReferralsPage() {
   const walletInfo = await getUserWallet()
 
-  // Corrigindo o link de referência para usar o URL correto do site
+ 
   const referralInfo = {
     referralCode: walletInfo.referralCode || "",
-    // Usando o URL correto do site
+   
     referralLink: `https://site-client-one.vercel.app/register?ref=${walletInfo.referralCode}`,
   }
 

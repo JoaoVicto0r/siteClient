@@ -5,7 +5,7 @@ import { DashboardWelcome } from "@/components/dashboard-welcome"
 import { InvestmentPackages } from "@/components/investment-packages"
 import { DashboardFooter } from "@/components/dashboard-footer"
 
-// Forçar renderização dinâmica
+
 export const dynamic = "force-dynamic"
 
 export default async function DashboardPage() {

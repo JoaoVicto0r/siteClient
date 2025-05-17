@@ -15,7 +15,7 @@ export function AdminHeader() {
     return pathname === path
   }
 
-  // Definindo os itens de navegação
+  
   const navItems = [
     { title: "Dashboard", href: "/admin" },
     { title: "Usuários", href: "/admin/users" },
